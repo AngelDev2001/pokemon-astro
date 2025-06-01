@@ -2,32 +2,31 @@
 import type { GetStaticPaths } from "astro";
 import type { PokemonListResponse } from "../../interfaces/pokemon-list.response.ts";
 
-import PokemonCard from "../../components/PokemonCard.astro";
+// import PokemonCard from "../../components/PokemonCard.astro";
+// import PokemonCard from "src/components/PokemonCard.astro";
+import PokemonCard from "@components/PokemonCard.astro";
 import Layout from "../../layouts/Layout.astro";
 
 export const getStaticPaths = (async () => {
   const response = await fetch("https://pokeapi.co/api/v2/pokemon?limit=151");
   const { results } = (await response.json()) as PokemonListResponse;
 
-  return results.map(({ name, url }) => ({
-    params: { name },
-    props: { name, url },
-  }));
+  return results.map(({ name, url }) => {
+    const id = url.split("/").at(-2);
+    return {
+      params: { id },
+      props: { name, url },
+    };
+  });
 }) satisfies GetStaticPaths;
 
-const { name } = Astro.params;
-const { url } = Astro.props;
+const { id } = Astro.params;
+const { url, name } = Astro.props;
 
-const id = url.split("/").at(-2);
 const audioSrc = `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
-const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${id}.png`;
 ---
 
-<Layout
-  title={`Pokemon ${name}`}
-  description={`Pokemon ${name} information page`}
-  image={imageUrl}
->
+<Layout>
   <section class="mt-10 mx-10 flex flex-col justify-center items-center">
     <div>
       <a href="/" class="hover:underline text-blue-500">Regresar</a>
